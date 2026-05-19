@@ -52,7 +52,7 @@ export default function AdminProducts() {
               <tr key={p.id_producto}>
                 <td>{p.id_producto}</td>
                 <td>{p.nombre_producto}</td>
-                <td>{p.categoria}</td>
+                <td>{p.nombre_categoria}</td>
                 <td>{p.marca}</td>
                 <td>${p.precio.toLocaleString('es-CL')}</td>
                 <td className="admin-table-btns">
