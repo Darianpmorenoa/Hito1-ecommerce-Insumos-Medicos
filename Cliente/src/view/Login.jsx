@@ -21,6 +21,11 @@ export default function Login() {
         email,
         password,
       });
+  
+      // Guardamos el token en el disco del navegador apenas llega
+      localStorage.setItem('token', res.data.token);
+  
+      // Tu código original sigue igual abajo:
       login(res.data.token, res.data.usuario.rol);
       navigate("/");
     } catch (err) {

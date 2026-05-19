@@ -20,6 +20,14 @@ export default function Checkout() {
       return;
     }
 
+    // Rescatamos el token de autenticación del usuario logueado
+    const token = localStorage.getItem('token'); 
+    if (!token) {
+      setErrorMensaje('Debes iniciar sesión para poder procesar tu compra.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -36,10 +44,15 @@ export default function Checkout() {
         metodo_pago: metodoPago
       };
 
-      // Petición POST protegida.
-      const response = await clienteAxios.post('/ordenes', payload);
+      // Pasamos el token en los headers como tercer parámetro en Axios
+      const response = await clienteAxios.post('/ordenes', payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
-      if (response.status === 201 || response.data.ok) {
+      // Validamos la respuesta exitosa del backend unificado en CommonJS
+      if (response.status === 201 || response.status === 200 || response.data?.ok) {
         alert("🧾 ¡Pago procesado con éxito! Boleta guardada y stock actualizado en Neon.");
         clearCart();
         navigate('/ThankYou');
@@ -54,7 +67,6 @@ export default function Checkout() {
       setLoading(false);
     }
   };
-
   return (
     <div className="checkout-container">
       <div className="checkout-form-section">
