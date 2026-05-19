@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../Auth'
+import clienteAxios from '../../api/api'
 import './AdminLogin.css'
 
 export default function AdminLogin() {
@@ -8,11 +9,22 @@ export default function AdminLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    login('token_admin_fake', 'admin')
-    navigate('/admin/home')
+    setError('')
+    try {
+      const res = await clienteAxios.post('/usuarios/login', { email, password })
+      if (res.data.usuario.rol !== 'admin') {
+        setError('No tienes permisos de administrador.')
+        return
+      }
+      login(res.data.token, res.data.usuario.rol)
+      navigate('/admin/home')
+    } catch {
+      setError('Credenciales incorrectas.')
+    }
   }
 
   return (
@@ -25,6 +37,8 @@ export default function AdminLogin() {
       <div className="admin-login-card">
         <h2>Acceso corporativo</h2>
         <p className="admin-login-subtitle">Ingresa tus credenciales para continuar</p>
+
+        {error && <p style={{ color: 'red', fontSize: '0.85rem' }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="admin-input-group">

@@ -48,7 +48,7 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody>
-            {productos.result.map((p) => (
+            {productos.map((p) => (
               <tr key={p.id_producto}>
                 <td>{p.id_producto}</td>
                 <td>{p.nombre_producto}</td>

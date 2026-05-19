@@ -1,15 +1,36 @@
+import { useEffect, useState } from 'react'
 import AdminSidebar from '../../components/AdminSidebar'
 import { Table, Button } from 'react-bootstrap'
-import { usuarios } from '../../data/users'
+import clienteAxios from '../../api/api'
 import '../admin/AdminHome.css'
 
 export default function AdminUsers() {
+  const [usuarios, setUsuarios] = useState([])
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const obtenerUsuarios = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await clienteAxios.get('/usuarios', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        setUsuarios(res.data)
+      } catch {
+        setError('No se pudo cargar la lista de usuarios.')
+      }
+    }
+    obtenerUsuarios()
+  }, [])
+
   return (
     <div className="admin-page">
       <AdminSidebar />
       <main className="admin-main">
         <h1 className="admin-title">Usuarios</h1>
         <p className="admin-subtitle">Listado de clientes registrados en la plataforma.</p>
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <div className="admin-table-actions">
           <Button className="admin-btn-add">+ Nuevo usuario</Button>
@@ -27,23 +48,31 @@ export default function AdminUsers() {
             </tr>
           </thead>
           <tbody>
-            {usuarios.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.nombre}</td>
-                <td>{u.email}</td>
-                <td>{u.telefono}</td>
-                <td>
-                  <span className={`admin-badge admin-badge--${u.rol}`}>
-                    {u.rol}
-                  </span>
-                </td>
-                <td className="admin-table-btns">
-                  <Button size="sm" className="admin-btn-edit">Editar</Button>
-                  <Button size="sm" className="admin-btn-delete">Eliminar</Button>
+            {usuarios.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center text-muted py-4">
+                  {error ? error : 'Cargando usuarios...'}
                 </td>
               </tr>
-            ))}
+            ) : (
+              usuarios.map((u) => (
+                <tr key={u.id_usuario}>
+                  <td>{u.id_usuario}</td>
+                  <td>{u.nombre} {u.apellido}</td>
+                  <td>{u.email}</td>
+                  <td>{u.telefono}</td>
+                  <td>
+                    <span className={`admin-badge admin-badge--${u.rol}`}>
+                      {u.rol}
+                    </span>
+                  </td>
+                  <td className="admin-table-btns">
+                    <Button size="sm" className="admin-btn-edit">Editar</Button>
+                    <Button size="sm" className="admin-btn-delete">Eliminar</Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </Table>
       </main>

@@ -34,4 +34,15 @@ const obtenerMisBoletas = async (req, res) => {
     }
 };
 
-module.exports = { crearBoleta, obtenerMisBoletas };
+// 3. Obtener todas las boletas (Solo para Admin)
+const obtenerTodasLasBoletas = async (req, res) => {
+    try {
+        const boletas = await consultas.obtenerTodasLasBoletas();
+        res.status(200).json(boletas);
+    } catch (error) {
+        console.error("Error al obtener boletas:", error.message);
+        res.status(500).json({ error: "Error al cargar boletas." });
+    }
+};
+
+module.exports = { crearBoleta, obtenerMisBoletas, obtenerTodasLasBoletas };

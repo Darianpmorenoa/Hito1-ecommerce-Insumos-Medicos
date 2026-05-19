@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { validateToken } = require('../middlewares/auth');
+const { validateToken, verifyAdmin } = require('../middlewares/auth');
 
 // 1. Registro de nuevos usuarios (Público)
 router.post('/registrar', userController.registrarUsuario);
@@ -10,7 +10,7 @@ router.post('/registrar', userController.registrarUsuario);
 router.get('/perfil', validateToken, userController.obtenerPerfil);
 
 // 3. Ver todos los usuarios (Privado - Solo para pruebas o Admin)
-router.get('/', validateToken, userController.obtenerUsuarios);
+router.get('/', validateToken, verifyAdmin, userController.obtenerUsuarios);
 
 // 4. Login de usuarios (Público)
 router.post('/login', userController.loginUsuario);

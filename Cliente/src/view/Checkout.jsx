@@ -6,7 +6,7 @@ import './Checkout.css';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, total, clearCart } = useContext(CartContext);
+  const { cart, totalCart, clearCart } = useContext(CartContext);
   const [metodoPago, setMetodoPago] = useState('tarjeta');
   const [loading, setLoading] = useState(false);
   const [errorMensaje, setErrorMensaje] = useState('');
@@ -32,7 +32,7 @@ export default function Checkout() {
 
       const payload = {
         productos: productosPayload,
-        total: total,
+        total: totalCart,
         metodo_pago: metodoPago
       };
 
@@ -105,7 +105,7 @@ export default function Checkout() {
           </section>
 
           <button type="submit" className="confirmar-btn" disabled={loading}>
-            {loading ? 'Procesando Compra...' : `Pagar Ahora ($${total?.toLocaleString('es-CL')})`}
+            {loading ? 'Procesando Compra...' : `Pagar Ahora ($${totalCart?.toLocaleString('es-CL')})`}
           </button>
         </form>
       </div>
@@ -114,7 +114,7 @@ export default function Checkout() {
         <h3>Resumen</h3>
         <p>Total de productos: {cart?.length || 0}</p>
         <hr />
-        <h4>Total a pagar: <strong>${total?.toLocaleString('es-CL')}</strong></h4>
+        <h4>Total a pagar: <strong>${totalCart?.toLocaleString('es-CL')}</strong></h4>
       </aside>
     </div>
   );
