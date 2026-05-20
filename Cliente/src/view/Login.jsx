@@ -22,18 +22,17 @@ export default function Login() {
         password,
       });
   
-      // Guardamos el token en el disco del navegador apenas llega
+      // Guardamos el token en la memoria del navegador inmediatamente
       localStorage.setItem('token', res.data.token);
   
-      // Tu código original sigue igual abajo:
+      // contexto y redirección original se mantienen abajo:
       login(res.data.token, res.data.usuario.rol);
       navigate("/");
     } catch (err) {
       setError(`Credenciales incorrectas. Intenta de nuevo.`);
-      console.log(err.response?.data);
-    }
-  };
-
+      console.error(err.response?.data);
+    }}
+    
   return (
     <div className="login">
       <div className="login-card">

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import clienteAxios from '../api/api';
@@ -10,6 +10,17 @@ export default function Checkout() {
   const [metodoPago, setMetodoPago] = useState('tarjeta');
   const [loading, setLoading] = useState(false);
   const [errorMensaje, setErrorMensaje] = useState('');
+  const [tokenActivo, setTokenActivo] = useState('');
+
+  // Sincronización con LocalStorage en minúsculas
+  useEffect(() => {
+    const tokenGuardado = localStorage.getItem('token');
+    if (!tokenGuardado) {
+      setErrorMensaje('🚨 No se detectó una sesión activa. Por favor, inicia sesión para comprar.');
+    } else {
+      setTokenActivo(tokenGuardado);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,18 +31,15 @@ export default function Checkout() {
       return;
     }
 
-    // Rescatamos el token de autenticación del usuario logueado
-    const token = localStorage.getItem('token'); 
-    if (!token) {
-      setErrorMensaje('Debes iniciar sesión para poder procesar tu compra.');
-      setLoading(false);
+    const tokenActual = localStorage.getItem('token') || tokenActivo;
+    if (!tokenActual) {
+      setErrorMensaje('🚨 No se detectó token de autenticación. Por favor, inicia sesión nuevamente.');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Mapeamos los datos del carrito para que cuadren con la consulta SQL
       const productosPayload = cart.map(item => ({
         id_producto: item.id_producto,
         cantidad: item.count || 1,
@@ -44,50 +52,57 @@ export default function Checkout() {
         metodo_pago: metodoPago
       };
 
-      // Pasamos el token en los headers como tercer parámetro en Axios
+      // Pasamos las cabeceras como el TERCER parámetro del .post()
       const response = await clienteAxios.post('/ordenes', payload, {
         headers: {
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${tokenActual}`
         }
       });
 
-      // Validamos la respuesta exitosa del backend unificado en CommonJS
       if (response.status === 201 || response.status === 200 || response.data?.ok) {
         alert("🧾 ¡Pago procesado con éxito! Boleta guardada y stock actualizado en Neon.");
-        clearCart();
+        
+        if (typeof clearCart === 'function') {
+          clearCart();
+        }
         navigate('/ThankYou');
       }
     } catch (error) {
       console.error("Error al registrar el checkout en Neon:", error);
       setErrorMensaje(
         error.response?.data?.message || 
-        'Hubo un problema de conexión con el servidor al registrar tu compra.'
+        'Error de autorización (401). Intenta cerrar sesión y volver a ingresar.'
       );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="checkout-container">
       <div className="checkout-form-section">
         <h2>Finalizar Compra</h2>
         
-        {errorMensaje && <div className="checkout-alert-error" style={{color: 'red', marginBottom: '15px'}}>{errorMensaje}</div>}
+        {errorMensaje && (
+          <div className="checkout-alert-error" style={{ color: 'red', fontWeight: 'bold', marginBottom: '15px' }}>
+            {errorMensaje}
+          </div>
+        )}
 
         <form className="checkout-form" onSubmit={handleSubmit}>
           
           <section className="form-group">
             <h3>1. Información de Envío</h3>
             <div className="fila-inputs">
-              <input type="text" placeholder="Nombre" required />
-              <input type="text" placeholder="Apellido" required />
+              <input type="text" placeholder="Nombre" required defaultValue="darian" />
+              <input type="text" placeholder="Apellido" required defaultValue="moreno" />
             </div>
-            <input type="text" placeholder="Dirección (Calle, número, depto)" required />
+            <input type="text" placeholder="Dirección" required defaultValue="Viña del Huerto Ote." />
             <div className="fila-inputs">
-              <input type="text" placeholder="Ciudad / Comuna" required />
-              <input type="text" placeholder="Región" required />
+              <input type="text" placeholder="Ciudad / Comuna" required defaultValue="Puente Alto" />
+              <input type="text" placeholder="Región" required defaultValue="metropolitana" />
             </div>
-            <input type="tel" placeholder="Teléfono de contacto" required />
+            <input type="tel" placeholder="Teléfono" required defaultValue="+56939180836" />
           </section>
 
           <section className="form-group">
@@ -116,7 +131,11 @@ export default function Checkout() {
             </div>
           </section>
 
-          <button type="submit" className="confirmar-btn" disabled={loading}>
+          <button 
+            type="submit" 
+            className="confirmar-btn" 
+            disabled={loading}
+          >
             {loading ? 'Procesando Compra...' : `Pagar Ahora ($${totalCart?.toLocaleString('es-CL')})`}
           </button>
         </form>

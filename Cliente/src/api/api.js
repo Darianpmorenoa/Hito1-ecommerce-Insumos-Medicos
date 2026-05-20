@@ -11,7 +11,7 @@ const clienteAxios = axios.create({
 // 3. Interceptor para inyectar automáticamente el token JWT
 clienteAxios.interceptors.request.use(
   (config) => {
-    // Busca el token en la 'cartera' del navegador
+    // Rescatamos el token fresco desde el almacenamiento local
     const token = localStorage.getItem('token'); 
     
     if (token) {
@@ -21,7 +21,6 @@ clienteAxios.interceptors.request.use(
     return config;
   },
   (error) => {
-    // Si hay un error antes de enviar la petición, lo rechazamos
     return Promise.reject(error);
   }
 );

@@ -11,10 +11,10 @@ export const CartProvider = ({ children }) => {
 
   const [totalCart, setTotalCart] = useState(0);
 
-  // 2. NUEVO ESTADO: Aquí guardaremos los productos que vienen de la base de datos
+  // 2. Guarda los productos que vienen de la base de datos
   const [productosLista, setProductosLista] = useState([]);
 
-  // 3. NUEVA FUNCIÓN: Conexión con la API de Render/Neon para traer el catálogo
+  // 3. Conexión con la API de Render/Neon para traer el catálogo
   const obtenerProductos = async () => {
     try {
       const res = await clienteAxios.get('/productos');
@@ -66,7 +66,10 @@ export const CartProvider = ({ children }) => {
   };
 
   // Función original para vaciar el carrito
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    localStorage.setItem("cart", JSON.stringify([]));
+  };
 
   return (
     <CartContext.Provider 
@@ -77,7 +80,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart, 
         totalCart, 
         clearCart,
-        productosLista // <-- lista de productos real para que Products.jsx la use
+        productosLista
       }}
     >
       {children}
