@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
+  "scripts": {
     "install-backend": "npm install",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest --testEnvironment node"
-},
-  
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

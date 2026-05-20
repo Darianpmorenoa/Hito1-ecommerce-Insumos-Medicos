@@ -10,10 +10,11 @@ const registrarUsuario = async (req, res) => {
         // Lógica para registrar en la base de datos 
         await consultas.registrarUsuario(usuario); 
         
-        res.status(201).send("Usuario registrado con éxito ✅");
+        // Unificamos a JSON para mantener la consistencia
+        res.status(201).json({ message: "Usuario registrado con éxito ✅" });
     } catch (error) {
-        console.error("Error en el registro:", error.message);
-        res.status(500).send("Error al registrar usuario: " + error.message);
+        console.error("❌ ERROR CRÍTICO EN REGISTRO:", error);
+        res.status(500).json({ error: "Error al registrar usuario: " + error.message });
     }
 };
 
@@ -25,29 +26,29 @@ const loginUsuario = async (req, res) => {
         // 1. Buscar usuario en la BD
         const usuario = await consultas.obtenerUsuarioPorEmail(email);
         if (!usuario) {
-            return res.status(401).json({ message: "Credenciales incorrectas" });
+            return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
         // 2. Comparar password con bcrypt
         const passwordValida = bcrypt.compareSync(password, usuario.password);
         if (!passwordValida) {
-            return res.status(401).json({ message: "Credenciales incorrectas" });
+            return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
-       // 3. Generar JWT (Guardo de ambas formas para máxima compatibilidad)
-       const token = jwt.sign(
-        { 
-            id: usuario.id_usuario, 
-            id_usuario: usuario.id_usuario, 
-            email: usuario.email, 
-            rol: usuario.rol 
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+        // 3. Generar JWT (Guardamos de ambas formas para máxima compatibilidad)
+        const token = jwt.sign(
+            { 
+                id: usuario.id_usuario, 
+                id_usuario: usuario.id_usuario, 
+                email: usuario.email, 
+                rol: usuario.rol 
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
 
         res.status(200).json({
-             message: "Login exitoso",
+            message: "Login exitoso",
             token,
             usuario: {
                 id: usuario.id_usuario,
@@ -58,20 +59,23 @@ const loginUsuario = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error en el login:", error.message);
-        res.status(500).send("Error en el servidor");
+        console.error("❌ ERROR CRÍTICO EN LOGIN:", error);
+        res.status(500).json({ error: "Error interno en el servidor durante el inicio de sesión." });
     }
 };
 
+// 3. Obtener todos los usuarios
 const obtenerUsuarios = async (req, res) => {
     try {
         const usuarios = await consultas.obtenerUsuarios();
         res.status(200).json(usuarios);
     } catch (error) {
-        console.error("Error al obtener usuarios:", error.message);
-        res.status(500).send("Error en el servidor");
+        console.error("❌ ERROR CRÍTICO EN OBTENER USUARIOS:", error);
+        res.status(500).json({ error: "Error en el servidor al cargar usuarios." });
     }
 };
+
+// 4. Obtener perfil del usuario logueado
 const obtenerPerfil = async (req, res) => {
     try {
         // El email viene del token que decodificamos en el middleware auth.js
@@ -79,16 +83,19 @@ const obtenerPerfil = async (req, res) => {
         const usuario = await consultas.obtenerPerfilUsuario(email);
         
         if (!usuario) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+            return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
         res.json(usuario);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener el perfil" });
+        console.error("❌ ERROR CRÍTICO EN OBTENER PERFIL:", error);
+        res.status(500).json({ error: "Error al obtener el perfil del usuario." });
     }
 };
 
-module.exports = { registrarUsuario, 
-                   loginUsuario,  
-                   obtenerUsuarios, 
-                   obtenerPerfil };
+module.exports = { 
+    registrarUsuario, 
+    loginUsuario,  
+    obtenerUsuarios, 
+    obtenerPerfil 
+};
