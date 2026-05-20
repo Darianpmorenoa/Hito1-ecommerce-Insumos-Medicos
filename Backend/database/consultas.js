@@ -41,26 +41,41 @@ const obtenerProductoPorId = async (id) => {
 };
 
 const generarBoleta = async (id_usuario, productos, total, metodo_pago = 'tarjeta') => {
+
     const consultaBoleta = `
         INSERT INTO boletas (id_usuario, fecha, total, estado, metodo_pago) 
         VALUES ($1, NOW(), $2, 'completado', $3) 
         RETURNING *
     `;
-    const { rows } = await pool.query(consultaBoleta, [id_usuario, total, metodo_pago]);
+
+    const { rows } = await pool.query(
+        consultaBoleta,
+        [id_usuario, total, metodo_pago]
+    );
+
     const nuevaBoleta = rows[0];
 
     for (const producto of productos) {
+
         const consultaDetalle = `
-            INSERT INTO boleta_items (cod_boleta, id_producto, cantidad, precio_unitario) 
+            INSERT INTO detalle_boleta
+            (cod_boleta, id_producto, cantidad, precio_unitario) 
             VALUES ($1, $2, $3, $4)
         `;
-        await pool.query(consultaDetalle, [nuevaBoleta.cod_boleta, producto.id_producto, producto.cantidad, producto.precio]);
+
+        await pool.query(consultaDetalle, [
+            nuevaBoleta.cod_boleta,
+            producto.id_producto,
+            producto.count,
+            producto.precio
+        ]);
 
         await pool.query(
             "UPDATE productos SET stock = stock - $1 WHERE id_producto = $2",
-            [producto.cantidad, producto.id_producto]
+            [producto.count, producto.id_producto]
         );
     }
+
     return nuevaBoleta;
 };
 
