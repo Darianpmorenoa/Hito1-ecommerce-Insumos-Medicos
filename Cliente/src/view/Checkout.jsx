@@ -10,15 +10,11 @@ export default function Checkout() {
   const [metodoPago, setMetodoPago] = useState('tarjeta');
   const [loading, setLoading] = useState(false);
   const [errorMensaje, setErrorMensaje] = useState('');
-  const [tokenActivo, setTokenActivo] = useState('');
 
-  // Sincronización exacta con localStorage al cargar el componente
   useEffect(() => {
     const tokenGuardado = localStorage.getItem('token');
     if (!tokenGuardado) {
       setErrorMensaje('🚨 No se detectó una sesión activa. Por favor, inicia sesión para comprar.');
-    } else {
-      setTokenActivo(tokenGuardado);
     }
   }, []);
 
@@ -31,8 +27,8 @@ export default function Checkout() {
       return;
     }
 
-    // Rescatamos el token asegurando que use la variable correcta
-    const tokenActual = localStorage.getItem('token') || tokenActivo;
+    // Rescatamos el token fresco directo del localStorage al presionar el botón
+    const tokenActual = localStorage.getItem('token');
     if (!tokenActual) {
       setErrorMensaje('🚨 No se detectó token de autenticación. Por favor, inicia sesión nuevamente.');
       return;
@@ -41,7 +37,6 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      // Mapeamos los datos para que coincidan con tus consultas en Neon
       const productosPayload = cart.map(item => ({
         id_producto: item.id_producto,
         cantidad: item.count || 1,
@@ -54,27 +49,28 @@ export default function Checkout() {
         metodo_pago: metodoPago
       };
 
-      // Pasamos la variable correcta 'tokenActual' y dentro de los paréntesis
       const response = await clienteAxios.post('/ordenes', payload, {
         headers: {
           'Authorization': `Bearer ${tokenActual}`
         }
       });
 
-      // Validamos los estados de respuesta exitosos del backend
       if (response.status === 201 || response.status === 200 || response.data?.ok) {
         alert("🧾 ¡Pago procesado con éxito! Boleta guardada y stock actualizado en Neon.");
-        
         if (typeof clearCart === 'function') {
           clearCart();
         }
         navigate('/ThankYou');
       }
     } catch (error) {
-      console.error("Error al registrar el checkout en Neon:", error);
+      console.error("Error real en la petición HTTP:", error);
+      
+      // Si el backend dice "No hay stock" o "Error SQL"
+      const mensajeServidor = error.response?.data?.error || error.response?.data?.message;
       setErrorMensaje(
-        error.response?.data?.message || 
-        'Error de autorización (401). Intenta cerrar sesión e ingresar nuevamente.'
+        mensajeServidor 
+          ? `❌ Error del Servidor: ${mensajeServidor}` 
+          : '❌ Hubo un problema al conectar con el servidor. Inténtalo más tarde.'
       );
     } finally {
       setLoading(false);
@@ -93,7 +89,6 @@ export default function Checkout() {
         )}
 
         <form className="checkout-form" onSubmit={handleSubmit}>
-          
           <section className="form-group">
             <h3>1. Información de Envío</h3>
             <div className="fila-inputs">
