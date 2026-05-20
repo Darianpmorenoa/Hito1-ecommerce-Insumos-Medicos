@@ -1,12 +1,13 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-if (!process.env.BD_CONNECTION) {
-  console.error("❌ Error: BD_CONNECTION no está definida");
+// Cambiado a DATABASE_URL para que coincida exactamente con Render
+if (!process.env.DATABASE_URL) {
+  console.error("❌ Error: DATABASE_URL no está definida");
 }
 
 const pool = new Pool({
-  connectionString: process.env.BD_CONNECTION,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
