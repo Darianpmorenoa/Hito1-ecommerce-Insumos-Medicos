@@ -36,9 +36,14 @@ export default function Register() {
     try {
       const { confirmPassword: _confirmPassword, ...datosEnvio } = formData;
       await clienteAxios.post('/usuarios/registrar', datosEnvio);
+      
+      alert("¡Usuario registrado con éxito! Ahora puedes iniciar sesión.");
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data || 'Error al registrar. Intenta de nuevo.');
+      console.error("Error capturado en el Frontend:", err);
+      
+      const mensajeError = err.response?.data?.error || err.response?.data?.message || 'Error al registrar. Intenta de nuevo.';
+      setError(mensajeError);
     }
   };
 
@@ -47,7 +52,11 @@ export default function Register() {
       <div className="register-card">
         <h1>Registro</h1>
 
-        {error && <p style={{ color: 'red', fontSize: '0.85rem' }}>{error}</p>}
+        {error && (
+          <div className="checkout-alert-error" style={{ color: 'red', fontWeight: 'bold', marginBottom: '15px', fontSize: '0.9rem' }}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="fila-inputs">
