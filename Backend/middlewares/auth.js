@@ -2,15 +2,28 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const validateToken = (req, res, next) => {
-  const token = req.headers["Authorization"]?.split(" ")[1];
-  if (!token) return res.status(401).json({ ok: false, message: "Token no proporcionado" });
+  const authHeader = req.headers["authorization"];
+  
+  if (!authHeader) {
+      return res.status(401).json({ ok: false, message: "Token no proporcionado en las cabeceras" });
+  }
+
+  // Soporta si viene con "Bearer " o si viene el token puro directamente
+  let token = authHeader;
+  if (authHeader.startsWith("Bearer ")) {
+      token = authHeader.slice(7, authHeader.length).trim();
+  }
+
+  if (!token || token === "undefined" || token === "null") {
+      return res.status(401).json({ ok: false, message: "Token inválido o vacío" });
+  }
 
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decodedToken;
-    next();
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decodedToken;
+      next();
   } catch (error) {
-    return res.status(401).json({ ok: false, message: "Token inválido o expirado" });
+      return res.status(401).json({ ok: false, message: "Token inválido o expirado" });
   }
 };
 
