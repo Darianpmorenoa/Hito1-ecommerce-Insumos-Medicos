@@ -34,12 +34,17 @@ const loginUsuario = async (req, res) => {
             return res.status(401).json({ message: "Credenciales incorrectas" });
         }
 
-        // 3. Generar JWT
-        const token = jwt.sign(
-            { id: usuario.id_usuario, email: usuario.email, rol: usuario.rol },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+       // 3. Generar JWT (Guardo de ambas formas para máxima compatibilidad)
+       const token = jwt.sign(
+        { 
+            id: usuario.id_usuario, 
+            id_usuario: usuario.id_usuario, 
+            email: usuario.email, 
+            rol: usuario.rol 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
 
         res.status(200).json({
              message: "Login exitoso",
