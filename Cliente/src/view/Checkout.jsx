@@ -12,7 +12,7 @@ export default function Checkout() {
   const [errorMensaje, setErrorMensaje] = useState('');
   const [tokenActivo, setTokenActivo] = useState('');
 
-  // Sincronización con LocalStorage en minúsculas
+  // Sincronización exacta con localStorage al cargar el componente
   useEffect(() => {
     const tokenGuardado = localStorage.getItem('token');
     if (!tokenGuardado) {
@@ -31,6 +31,7 @@ export default function Checkout() {
       return;
     }
 
+    // Rescatamos el token asegurando que use la variable correcta
     const tokenActual = localStorage.getItem('token') || tokenActivo;
     if (!tokenActual) {
       setErrorMensaje('🚨 No se detectó token de autenticación. Por favor, inicia sesión nuevamente.');
@@ -40,6 +41,7 @@ export default function Checkout() {
     setLoading(true);
 
     try {
+      // Mapeamos los datos para que coincidan con tus consultas en Neon
       const productosPayload = cart.map(item => ({
         id_producto: item.id_producto,
         cantidad: item.count || 1,
@@ -52,13 +54,14 @@ export default function Checkout() {
         metodo_pago: metodoPago
       };
 
-      // Pasamos las cabeceras como el TERCER parámetro del .post()
+      // Pasamos la variable correcta 'tokenActual' y dentro de los paréntesis
       const response = await clienteAxios.post('/ordenes', payload, {
         headers: {
           'Authorization': `Bearer ${tokenActual}`
         }
       });
 
+      // Validamos los estados de respuesta exitosos del backend
       if (response.status === 201 || response.status === 200 || response.data?.ok) {
         alert("🧾 ¡Pago procesado con éxito! Boleta guardada y stock actualizado en Neon.");
         
@@ -71,7 +74,7 @@ export default function Checkout() {
       console.error("Error al registrar el checkout en Neon:", error);
       setErrorMensaje(
         error.response?.data?.message || 
-        'Error de autorización (401). Intenta cerrar sesión y volver a ingresar.'
+        'Error de autorización (401). Intenta cerrar sesión e ingresar nuevamente.'
       );
     } finally {
       setLoading(false);
@@ -97,12 +100,12 @@ export default function Checkout() {
               <input type="text" placeholder="Nombre" required defaultValue="darian" />
               <input type="text" placeholder="Apellido" required defaultValue="moreno" />
             </div>
-            <input type="text" placeholder="Dirección" required defaultValue="Viña del Huerto Ote." />
+            <input type="text" placeholder="Dirección (Calle, número, depto)" required defaultValue="Viña del Huerto Ote." />
             <div className="fila-inputs">
               <input type="text" placeholder="Ciudad / Comuna" required defaultValue="Puente Alto" />
               <input type="text" placeholder="Región" required defaultValue="metropolitana" />
             </div>
-            <input type="tel" placeholder="Teléfono" required defaultValue="+56939180836" />
+            <input type="tel" placeholder="Teléfono de contacto" required defaultValue="939180836" />
           </section>
 
           <section className="form-group">
