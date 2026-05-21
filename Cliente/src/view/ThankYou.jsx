@@ -10,7 +10,7 @@ export default function ThankYou() {
 
   useEffect(() => {
     clearCart();
-  }, [clearCart]);
+  }, []);
 
   const handleDownload = () => {
     alert("Generando comprobante de pago... (PDF)");
