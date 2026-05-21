@@ -37,7 +37,7 @@ export default function ThankYou() {
             <FaDownload /> Descargar comprobante
           </button>
 
-          <button type="button" onClick={() => navigate("/")} className="btn-home">
+          <button type="button" onClick={() => window.location.href = "/"} className="btn-home">
             <FaHome /> Volver al Home
           </button>
         </div>
