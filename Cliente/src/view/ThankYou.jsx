@@ -33,11 +33,11 @@ export default function ThankYou() {
         </p>
 
         <div className="thankyou-actions">
-          <button onClick={handleDownload} className="btn-comprobante">
+          <button type="button" onClick={handleDownload} className="btn-comprobante">
             <FaDownload /> Descargar comprobante
           </button>
 
-          <button onClick={() => navigate("/")} className="btn-home">
+          <button type="button" onClick={() => navigate("/")} className="btn-home">
             <FaHome /> Volver al Home
           </button>
         </div>
