@@ -60,7 +60,7 @@ export default function Checkout() {
         if (typeof clearCart === 'function') {
           clearCart();
         }
-        navigate('/ThankYou');
+        navigate('/thankYou');
       }
     } catch (error) {
       console.error("Error real en la petición HTTP:", error);
