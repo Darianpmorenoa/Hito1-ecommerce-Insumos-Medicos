@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/api';
 
 // 2. Instancia personalizada de axios
 const clienteAxios = axios.create({
-  baseURL:'https://ecommerce-insumos-medicos-medisupply-phba.onrender.com'
+  baseURL: API_URL,
 });
 
 // 3. Interceptor para inyectar automáticamente el token JWT
