@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
   // 3. Conexión con la API de Render/Neon para traer el catálogo
   const obtenerProductos = async () => {
     try {
-      const res = await clienteAxios.get('/api/productos');
+      const res = await clienteAxios.get('/productos');
       setProductosLista(res.data.result || res.data);
     } catch (error) {
       console.error("Error al cargar el catálogo desde el Backend:", error);
