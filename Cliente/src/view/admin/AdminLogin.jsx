@@ -14,6 +14,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+  
     try {
       const res = await clienteAxios.post('/usuarios/login', { email, password })
       if (res.data.usuario.rol !== 'admin') {

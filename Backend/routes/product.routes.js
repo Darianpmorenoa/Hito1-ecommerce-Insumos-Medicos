@@ -30,7 +30,7 @@ productsRouter.get("/:id", async (req, res) => {
 });
 
 // 3. CREATE PRODUCTO (Crear producto - Solo Admin)
-productsRouter.post("/", validateToken, verifyAdmin, async (req, res) => {
+productsRouter.post("/", async (req, res) => {
     try {
         await createProduct(req, res);
     } catch (error) {
