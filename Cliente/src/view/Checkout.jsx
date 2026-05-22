@@ -92,15 +92,15 @@ export default function Checkout() {
           <section className="form-group">
             <h3>1. Información de Envío</h3>
             <div className="fila-inputs">
-              <input type="text" placeholder="Nombre" required defaultValue="darian" />
-              <input type="text" placeholder="Apellido" required defaultValue="moreno" />
+              <input type="text" placeholder="Nombre" required />
+              <input type="text" placeholder="Apellido" required />
             </div>
-            <input type="text" placeholder="Dirección (Calle, número, depto)" required defaultValue="Viña del Huerto Ote." />
+            <input type="text" placeholder="Dirección (Calle, número, depto)" required />
             <div className="fila-inputs">
-              <input type="text" placeholder="Ciudad / Comuna" required defaultValue="Puente Alto" />
-              <input type="text" placeholder="Región" required defaultValue="metropolitana" />
+              <input type="text" placeholder="Ciudad / Comuna" required />
+              <input type="text" placeholder="Región" required />
             </div>
-            <input type="tel" placeholder="Teléfono de contacto" required defaultValue="939180836" />
+            <input type="tel" placeholder="Teléfono de contacto" />
           </section>
 
           <section className="form-group">
