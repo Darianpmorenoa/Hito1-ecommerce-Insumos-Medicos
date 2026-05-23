@@ -7,7 +7,9 @@ import AdminProductModals from './AdminProductModals';
 
 export default function AdminProducts() {
   const [productos, setProductos] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  // Nuevo estado para almacenar el producto que el usuario quiere editar
+  const [productToEdit, setProductToEdit] = useState(null);
 
   // Para traer los productos desde Neon
   const obtenerProductos = async () => {
@@ -24,7 +26,25 @@ export default function AdminProducts() {
     obtenerProductos();
   }, []);
 
-  //Borra en la base de datos y actualiza la pantalla al instante
+  // Abre el modal listo para CREAR un producto nuevo
+  const handleOpenAddModal = () => {
+    setProductToEdit(null);
+    setShowModal(true);
+  };
+
+  // Abre el modal listo para EDITAR cargando el producto seleccionado
+  const handleOpenEditModal = (producto) => {
+    setProductToEdit(producto);
+    setShowModal(true);
+  };
+
+  // Cierra el modal y limpia el producto en edición
+  const handleCloseModal = () => {
+    setProductToEdit(null);
+    setShowModal(false);
+  };
+
+  // Borra en la base de datos y actualiza la pantalla al instante
   const handleDeleteProduct = async (id) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este producto del inventario?")) {
       return;
@@ -50,17 +70,19 @@ export default function AdminProducts() {
         <p className="admin-subtitle">Listado completo de productos en el inventario.</p>
 
         <div className="admin-table-actions">
-          {/* Al hacer clic, pasamos el estado a true para renderizar el modal */}
-          <Button className="admin-btn-add" onClick={() => setShowAddModal(true)}>
+          {/* Al hacer clic, abrimos en modo creación */}
+          <Button className="admin-btn-add" onClick={handleOpenAddModal}>
             + Nuevo producto
           </Button>
         </div>
 
-        {showAddModal && (
+        {/* Pasamos show, handleClose, refresh y opcionalmente el producto a editar */}
+        {showModal && (
           <AdminProductModals 
-            show={showAddModal} 
-            handleClose={() => setShowAddModal(false)} 
+            show={showModal} 
+            handleClose={handleCloseModal} 
             refreshProductos={obtenerProductos}
+            productToEdit={productToEdit} 
           />
         )}
 
@@ -91,7 +113,14 @@ export default function AdminProducts() {
                   <td>{p.marca}</td>
                   <td>${p.precio ? p.precio.toLocaleString('es-CL') : '0'}</td>
                   <td className="admin-table-btns">
-                    <Button size="sm" className="admin-btn-edit">Editar</Button>
+                    {/* Al hacer clic en Editar, entrego el objeto 'p' completo */}
+                    <Button 
+                      size="sm" 
+                      className="admin-btn-edit"
+                      onClick={() => handleOpenEditModal(p)}
+                    >
+                      Editar
+                    </Button>
                     <Button 
                       size="sm" 
                       className="admin-btn-delete" 

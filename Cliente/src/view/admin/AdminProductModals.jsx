@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import clienteAxios from '../../api/api';
 
-export default function AdminProductModals({ show, handleClose, refreshProductos }) {
+export default function AdminProductModals({ show, handleClose, refreshProductos, productToEdit }) {
   
   // Estado inicializado con los campos del formulario
   const [nuevoProducto, setNuevoProducto] = useState({
@@ -13,6 +13,32 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
     descripcion: '',
     imagen_url: ''
   });
+
+  // useEffect para detectar si el modal se abre en modo edición o creación
+  useEffect(() => {
+    if (productToEdit) {
+      // Modo Edición: Poblamos los campos con los valores del producto seleccionado
+      setNuevoProducto({
+        nombre_producto: productToEdit.nombre_producto || '',
+        id_categoria: productToEdit.id_categoria || '',
+        marca: productToEdit.marca || '',
+        precio: productToEdit.precio || '',
+        descripcion: productToEdit.descripcion || '',
+        // Mapeamos la columna 'imagen' que viene de Neon al input 'imagen_url'
+        imagen_url: productToEdit.imagen || '' 
+      });
+    } else {
+      // Modo Creación: Limpiamos todos los campos del formulario
+      setNuevoProducto({
+        nombre_producto: '',
+        id_categoria: '',
+        marca: '',
+        precio: '',
+        descripcion: '',
+        imagen_url: ''
+      });
+    }
+  }, [productToEdit, show]);
 
   const handleChange = (e) => {
     setNuevoProducto({
@@ -28,8 +54,7 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
       alert("Por favor, selecciona una categoría para el producto.");
       return;
     }
-
-    // ASEGURAMOS LOS DATOS ANTES DE ENVIAR
+    
     const datosAEnviar = {
       ...nuevoProducto,
       id_categoria: parseInt(nuevoProducto.id_categoria, 10),
@@ -38,14 +63,20 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
     };
 
     try {
-      // Enviamos los datos limpios y preparados
-      await clienteAxios.post('/productos', datosAEnviar);
+      if (productToEdit) {
+        // MODO EDICIÓN: al endpoint PUT /productos/:id
+        await clienteAxios.put(`/productos/${productToEdit.id_producto}`, datosAEnviar);
+        alert('¡Producto actualizado con éxito! 🔄');
+      } else {
+        // MODO CREACIÓN: al endpoint POST /productos
+        await clienteAxios.post('/productos', datosAEnviar);
+        alert('¡Producto agregado con éxito! 🚀');
+      }
       
-      alert('¡Producto agregado con éxito! 🚀');
       refreshProductos();
       handleClose();     
     } catch (error) {
-      console.error("Error al agregar producto:", error);
+      console.error("Error al guardar producto:", error);
       alert(error.response?.data?.error || error.response?.data?.message || "Hubo un error al guardar el producto.");
     }
   }; 
@@ -53,7 +84,10 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Agregar Nuevo Producto</Modal.Title>
+        {/* Cambia dinámicamente el título del encabezado */}
+        <Modal.Title>
+          {productToEdit ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+        </Modal.Title>
       </Modal.Header>
       
       <Form onSubmit={handleSubmit}>
@@ -148,8 +182,9 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
           <Button variant="secondary" onClick={handleClose}>
             Cancelar
           </Button>
+          {/* El botón se adapta al estado actual */}
           <Button variant="primary" type="submit">
-            Guardar Producto
+            {productToEdit ? 'Guardar Cambios' : 'Guardar Producto'}
           </Button>
         </Modal.Footer>
       </Form>
