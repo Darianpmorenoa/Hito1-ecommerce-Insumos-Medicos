@@ -1,11 +1,14 @@
 const pool = require('../database/connection');
 
-// 1. Obtener todos los productos (Para la tienda)
+// 1. Obtener todos los productos (Para la tienda con su categoría unida)
 const getAllProducts = async (req, res) => {
     try {
+        // Enlazamos p.id_categoria con c.id_categoria usando estructura real
         const query = `
-            SELECT * FROM productos 
-            ORDER BY id ASC
+            SELECT p.*, c.nombre_categoria
+            FROM productos p
+            LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+            ORDER BY p.id_producto ASC
         `;
         const result = await pool.query(query);
         res.status(200).json(result.rows);
@@ -18,10 +21,12 @@ const getAllProducts = async (req, res) => {
 // 2. Obtener producto por ID (Para la vista de detalle)
 const getProductById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; // Este id viene de la URL de la ruta de Express
         const query = `
-            SELECT * FROM productos 
-            WHERE id = $1
+            SELECT p.*, c.nombre_categoria
+            FROM productos p
+            LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+            WHERE p.id_producto = $1
         `;
         const result = await pool.query(query, [id]);
 
@@ -38,33 +43,24 @@ const getProductById = async (req, res) => {
 // 3. Crear producto (Para el Admin)
 const createProduct = async (req, res) => {
     try {
-        // Capturamos las variables tal cual vienen de tu formulario en React
-        const { nombre_producto, descripcion, imagen_url, precio, id_categoria, marca } = req.body;
+        // Capturamos las propiedades que viajan desde tu formulario de React
+        const { nombre_producto, descripcion, imagen_url, precio, id_categoria, marca, stock } = req.body;
 
-        // Normalizamos los nombres exactos alineados con las columnas de Neon
-        const precioFinal = parseInt(precio, 10) || 0;
-        const stockFinal = parseInt(req.body.stock, 10) || 10; 
-        const imagenFinal = imagen_url || ""; 
-        const categoriaFinal = id_categoria ? String(id_categoria) : "1";
-        const nombreFinal = nombre_producto || "Insumo Médico";
-        const descripcionFinal = descripcion || "";
-        const marcaFinal = marca || "Genérico";
-
-        // Mapeo uno a uno estricto en el orden de los VALUES
+        // Mapeamos las variables uno a uno con las columnas exactas de tu Schema.sql
         const query = `
-            INSERT INTO productos (precio, stock, imagen_url, categoria, nombre, descripcion, marca) 
+            INSERT INTO productos (nombre_producto, descripcion, imagen, precio, stock, marca, id_categoria) 
             VALUES ($1, $2, $3, $4, $5, $6, $7) 
             RETURNING *;
         `;
         
         const values = [
-            precioFinal,      
-            stockFinal,        
-            imagenFinal,       
-            categoriaFinal,    
-            nombreFinal,       
-            descripcionFinal,  
-            marcaFinal        
+            nombre_producto || "Insumo Médico",
+            descripcion || "",
+            imagen_url || "", 
+            parseFloat(precio) || 0.00,
+            parseInt(stock, 10) || 10, 
+            marca || "Genérico",
+            id_categoria ? parseInt(id_categoria, 10) : null
         ];
 
         const result = await pool.query(query, values);
@@ -75,8 +71,8 @@ const createProduct = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error definitivo en createProduct:", error.message);
-        return res.status(500).json({ error: `Error en Neon: ${error.message}` });
+        console.error("Error en createProduct:", error.message);
+        return res.status(500).json({ error: `Error en Base de Datos: ${error.message}` });
     }
 };
 
@@ -84,7 +80,8 @@ const createProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const query = `DELETE FROM productos WHERE id = $1 RETURNING *`;
+        // Apuntamos a 'id_producto' como clave primaria real
+        const query = `DELETE FROM productos WHERE id_producto = $1 RETURNING *`;
         const result = await pool.query(query, [id]);
 
         if (result.rows.length === 0) {
@@ -104,21 +101,22 @@ const modifyProduct = async (req, res) => {
         const { id } = req.params;
         const { nombre_producto, descripcion, imagen_url, precio, stock, marca, id_categoria } = req.body;
         
+        // Sincronizado completo con las columnas del Schema local
         const query = `
             UPDATE productos 
-            SET precio = $1, stock = $2, imagen_url = $3, categoria = $4, nombre = $5, descripcion = $6, marca = $7
-            WHERE id = $8 
+            SET nombre_producto = $1, descripcion = $2, imagen = $3, precio = $4, stock = $5, marca = $6, id_categoria = $7
+            WHERE id_producto = $8 
             RETURNING *
         `;
 
         const values = [
-            parseInt(precio, 10) || 0, 
-            parseInt(stock, 10) || 0, 
-            imagen_url || "",
-            String(id_categoria),
             nombre_producto || "Insumo Médico",
             descripcion || "",
+            imagen_url || "",
+            parseFloat(precio) || 0.00, 
+            parseInt(stock, 10) || 0, 
             marca || "Genérico",
+            id_categoria ? parseInt(id_categoria, 10) : null,
             id
         ];
         
