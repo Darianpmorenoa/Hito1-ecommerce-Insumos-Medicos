@@ -70,7 +70,7 @@ const ProductDetail = () => {
             
             <div className="mb-4">
               <h3 className="text-primary fw-bold">
-                ${product.precio.toLocaleString("es-CL")}
+              ${Number(product.precio).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </h3>
               <p className="text-muted small">Precio con IVA incluido e impuestos locales.</p>
             </div>

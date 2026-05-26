@@ -25,7 +25,7 @@ const ProductCard = ({ nombre_producto, marca, imagen, precio, id_producto, desc
         
         <div className="mt-auto">
           <p className="product-card-price fw-bold text-primary fs-5">
-            ${precio?.toLocaleString('es-CL')}
+          ${precio ? Number(precio).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '0'}
           </p>
 
           <div className="d-grid gap-2">
