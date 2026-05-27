@@ -15,23 +15,40 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(""); 
+    
     try {
       const res = await clienteAxios.post("/usuarios/login", {
         email,
         password,
       });
   
-      // Guardamos el token en la memoria del navegador inmediatamente
       localStorage.setItem('token', res.data.token);
   
-      // contexto y redirección original se mantienen abajo:
       login(res.data.token, res.data.usuario.rol);
       navigate("/");
     } catch (err) {
-      setError(`Credenciales incorrectas. Intenta de nuevo.`);
       console.error(err.response?.data);
-    }}
+
+      // Verificamos si el backend envió una respuesta estructurada
+      if (err.response && err.response.data) {
+        const { error_type, error: mensajeBackend } = err.response.data;
+
+        // Tipo de error específico según la lógica del backend
+        if (error_type === "EMAIL_NOT_FOUND") {
+          setError(`📧 ${mensajeBackend}`);
+        } else if (error_type === "INVALID_PASSWORD") {
+          setError(`🔒 ${mensajeBackend}`);
+        } else {
+          // Si por alguna razón el backend manda el formato viejo o un error genérico
+          setError(mensajeBackend || "Credenciales incorrectas. Intenta de nuevo.");
+        }
+      } else {
+        // Esto solo se ejecuta si el servidor está apagado o no hay internet
+        setError("No se pudo conectar con el servidor. Inténtalo más tarde.");
+      }
+    }
+  };
     
   return (
     <div className="login">
@@ -39,6 +56,7 @@ export default function Login() {
         <h1>Bienvenido</h1>
         <p className="subtitle">inicia sesión para continuar</p>
 
+        {/* mensaje de error dinámico en color rojo */}
         {error && <p style={{ color: "red", fontSize: "0.85rem" }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>

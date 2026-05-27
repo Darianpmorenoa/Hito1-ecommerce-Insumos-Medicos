@@ -18,21 +18,29 @@ const registrarUsuario = async (req, res) => {
     }
 };
 
-// 2. Función para inicio de sesión (Login)
+// 2. Función para inicio de sesión (Login) - MODIFICADO CON ESPECIFICACIÓN
 const loginUsuario = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // 1. Buscar usuario en la BD
+        // 1. Buscar usuario en la BD por su Email
         const usuario = await consultas.obtenerUsuarioPorEmail(email);
         if (!usuario) {
-            return res.status(401).json({ error: "Credenciales incorrectas" });
+            // ESPECIFICACIÓN 1: El correo electrónico no existe
+            return res.status(404).json({ 
+                error_type: "EMAIL_NOT_FOUND",
+                error: "El correo electrónico ingresado no está registrado." 
+            });
         }
 
         // 2. Comparar password con bcrypt
         const passwordValida = bcrypt.compareSync(password, usuario.password);
         if (!passwordValida) {
-            return res.status(401).json({ error: "Credenciales incorrectas" });
+            // ESPECIFICACIÓN 2: El correo existe, pero la contraseña está errónea
+            return res.status(401).json({ 
+                error_type: "INVALID_PASSWORD",
+                error: "La contraseña ingresada es incorrecta." 
+            });
         }
 
         // 3. Generar JWT (Guardamos de ambas formas para máxima compatibilidad)
