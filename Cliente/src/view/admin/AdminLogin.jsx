@@ -1,32 +1,32 @@
-import { useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../Auth'
-import clienteAxios from '../../api/api'
-import './AdminLogin.css'
+import { useContext, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../Auth';
+import clienteAxios from '../../api/api';
+import './AdminLogin.css';
 
 export default function AdminLogin() {
-  const { login } = useContext(AuthContext)
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
   
     try {
-      const res = await clienteAxios.post('/usuarios/login', { email, password })
+      const res = await clienteAxios.post('/usuarios/login', { email, password });
       if (res.data.usuario.rol !== 'admin') {
-        setError('No tienes permisos de administrador.')
-        return
+        setError('No tienes permisos de administrador.');
+        return;
       }
-      login(res.data.token, res.data.usuario.rol)
-      navigate('/admin/home')
+      login(res.data.token, res.data.usuario.rol);
+      navigate('/admin/home');
     } catch {
-      setError('Credenciales incorrectas.')
+      setError('Credenciales incorrectas.');
     }
-  }
+  };
 
   return (
     <div className="admin-login">
@@ -62,9 +62,19 @@ export default function AdminLogin() {
               required
             />
           </div>
-          <button type="submit" className="admin-login-btn">Ingresar</button>
+
+          <button type="submit" className="admin-login-btn">
+            Ingresar
+          </button>
+
+          {/* BOTÓN NUEVO PARA VOLVER AL HOME */}
+          <div className="text-center mt-3">
+            <Link to="/" className="btn btn-link text-decoration-none text-muted" style={{ fontSize: '0.9rem' }}>
+              🏠 Volver a la página principal
+            </Link>
+          </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
