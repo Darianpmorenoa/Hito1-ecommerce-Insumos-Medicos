@@ -111,7 +111,19 @@ export default function AdminProducts() {
                   <td>{p.nombre_producto}</td>
                   <td>{p.nombre_categoria || 'Sin categoría'}</td>
                   <td>{p.marca}</td>
-                  <td>${p.precio ? p.precio.toLocaleString('es-CL') : '0'}</td>
+                  
+                  {/*  CELDA CORREGIDA CON FORMATO CLP EXPLICITO Y SIN DECIMALES */}
+                  <td>
+                    {p.precio 
+                      ? Number(p.precio).toLocaleString('es-CL', {
+                          style: 'currency',
+                          currency: 'CLP',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        }) 
+                      : '$0'}
+                  </td>
+
                   <td className="admin-table-btns">
                     {/* Al hacer clic en Editar, entrego el objeto 'p' completo */}
                     <Button 

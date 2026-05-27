@@ -16,35 +16,43 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); 
-    
     try {
       const res = await clienteAxios.post("/usuarios/login", {
         email,
         password,
       });
   
+      // 1. Guardamos el token en la memoria del navegador inmediatamente
       localStorage.setItem('token', res.data.token);
   
+      // 2. Sincronizamos el estado global de autenticación
       login(res.data.token, res.data.usuario.rol);
-      navigate("/");
+  
+      const rolUsuario = res.data.usuario.rol ? res.data.usuario.rol.toLowerCase() : "";
+
+      if (rolUsuario === 'admin') {
+        navigate("/admin/home");
+      } else {
+        navigate("/");
+      }
+  
     } catch (err) {
       console.error(err.response?.data);
 
-      // Verificamos si el backend envió una respuesta estructurada
+      // Verificamos si el backend envió una respuesta estructurada de error
       if (err.response && err.response.data) {
         const { error_type, error: mensajeBackend } = err.response.data;
 
-        // Tipo de error específico según la lógica del backend
+        // Tipo de error específico según la respuesta del controlador
         if (error_type === "EMAIL_NOT_FOUND") {
           setError(`📧 ${mensajeBackend}`);
         } else if (error_type === "INVALID_PASSWORD") {
           setError(`🔒 ${mensajeBackend}`);
         } else {
-          // Si por alguna razón el backend manda el formato viejo o un error genérico
           setError(mensajeBackend || "Credenciales incorrectas. Intenta de nuevo.");
         }
       } else {
-        // Esto solo se ejecuta si el servidor está apagado o no hay internet
+        // En caso de que el backend local o en Render esté apagado/caído
         setError("No se pudo conectar con el servidor. Inténtalo más tarde.");
       }
     }
@@ -56,7 +64,7 @@ export default function Login() {
         <h1>Bienvenido</h1>
         <p className="subtitle">inicia sesión para continuar</p>
 
-        {/* mensaje de error dinámico en color rojo */}
+        {/* Mensaje de error dinámico en color rojo */}
         {error && <p style={{ color: "red", fontSize: "0.85rem" }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
