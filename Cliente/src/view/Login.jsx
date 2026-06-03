@@ -99,10 +99,6 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="olvide-password">
-            <Link to="/reset-password">Olvidé mi contraseña</Link>
-          </div>
-
           <button type="submit" className="login-btn">
             Iniciar sesión
           </button>

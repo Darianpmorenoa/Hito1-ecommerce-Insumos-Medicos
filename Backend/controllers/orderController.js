@@ -3,7 +3,7 @@ const consultas = require('../database/consultas');
 // 1. Generar una nueva Boleta (Antes crearOrden)
 const crearBoleta = async (req, res) => {
     try {
-        const { productos, total } = req.body;
+        const { productos, total, metodo_pago } = req.body;
         
         if (!req.user) {
             return res.status(401).json({ 
@@ -19,7 +19,7 @@ const crearBoleta = async (req, res) => {
             });
         }
 
-        const nuevaBoleta = await consultas.generarBoleta(id_usuario, productos, total);
+        const nuevaBoleta = await consultas.generarBoleta(id_usuario, productos, total, metodo_pago);
         
         res.status(201).json({
             ok: true,
