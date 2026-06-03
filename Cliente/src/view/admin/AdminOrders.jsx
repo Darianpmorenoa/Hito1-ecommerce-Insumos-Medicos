@@ -67,7 +67,6 @@ export default function AdminOrders() {
               <th>Total</th>
               <th>Método de pago</th>
               <th>Estado</th>
-              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -100,10 +99,6 @@ export default function AdminOrders() {
                       <option value="en proceso">En Proceso</option>
                       <option value="completado">Completado</option>
                     </Form.Select>
-                  </td>
-                  
-                  <td className="admin-table-btns">
-                    <Button size="sm" className="admin-btn-delete">Eliminar</Button>
                   </td>
                 </tr>
               ))
