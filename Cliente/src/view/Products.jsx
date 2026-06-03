@@ -25,7 +25,15 @@ export default function Products() {
       <Row>
         {productosFiltrados.map((p) => (
           <Col key={p.id_producto} md={3} className="mb-4">
-            <ProductCard {...p} />
+            <ProductCard 
+              id_producto={p.id_producto}
+              nombre_producto={p.nombre_producto}
+              marca={p.marca}
+              imagen={p.imagen}
+              precio={p.precio}
+              descripcion={p.descripcion}
+              stock={p.stock} 
+            />
           </Col>
         ))}
       </Row>

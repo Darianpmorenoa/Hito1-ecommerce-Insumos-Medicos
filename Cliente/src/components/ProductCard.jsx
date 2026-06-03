@@ -4,13 +4,15 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import './ProductCard.css';
 
-const ProductCard = ({ nombre_producto, marca, imagen, precio, id_producto, descripcion }) => {
+// 1. Agregamos 'stock' a las props recibidas
+const ProductCard = ({ nombre_producto, marca, imagen, precio, id_producto, descripcion, stock }) => {
   const { addToCart } = useContext(CartContext);
 
-  const productData = { nombre_producto, marca, imagen, precio, id_producto, descripcion };
+  // Incluimos el stock dentro de los datos del producto
+  const productData = { nombre_producto, marca, imagen, precio, id_producto, descripcion, stock };
 
   return (
-    <div className="product-card h-100 shadow-sm card">
+    <div className={`product-card h-100 shadow-sm card ${stock <= 0 ? 'producto-agotado' : ''}`}>
       <div className="product-card-img">
         {imagen ? (
           <img src={imagen} alt={nombre_producto} className="card-img-top" />
@@ -34,15 +36,16 @@ const ProductCard = ({ nombre_producto, marca, imagen, precio, id_producto, desc
                 variant="outline-primary" 
                 className="w-100 fw-bold"
               >
-                Ver detalles 👀
+                Ver detalles
               </Button>
             </Link>
 
             <Button 
-              className="product-card-btn btn-dark w-100 fw-bold"
+              className={`w-100 fw-bold ${stock > 0 ? 'product-card-btn btn-dark' : 'btn-secondary'}`}
               onClick={() => addToCart(productData)}
+              disabled={stock <= 0}
             >
-              Añadir al carrito 🛒
+              {stock > 0 ? "Añadir al carrito 🛒" : "Agotado ❌"}
             </Button>
           </div>
         </div>

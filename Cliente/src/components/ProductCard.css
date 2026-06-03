@@ -74,3 +74,14 @@
 }
 
 .product-card-btn:hover { background-color: var(--color-primary); }
+
+.producto-agotado {
+  opacity: 0.6; 
+  filter: grayscale(30%);
+}
+.producto-agotado button:disabled {
+  cursor: not-allowed;
+}
+.producto-agotado .product-card-price {
+  color: #6c757d;
+}

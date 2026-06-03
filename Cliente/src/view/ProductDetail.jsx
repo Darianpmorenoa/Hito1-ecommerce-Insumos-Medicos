@@ -9,25 +9,18 @@ const ProductDetail = () => {
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
 
-
- useEffect(() => {
-
+  useEffect(() => {
     const obtenerProducto = async () => {
-      
       try {
         const response = await clienteAxios.get(`/productos/${id}`);
         setProduct(response.data);
-
       } catch (error) {
         console.error(error);
-
       }
     };
 
     obtenerProducto();
-
   }, [id]);
-
 
   if (!product) {
     return (
@@ -40,6 +33,9 @@ const ProductDetail = () => {
     );
   }
 
+  // Variable de apoyo para verificar si hay existencias reales
+  const tieneStock = product.stock > 0;
+
   return (
     <Container className="py-5" style={{ minHeight: "80vh" }}>
       <nav className="mb-4">
@@ -50,7 +46,7 @@ const ProductDetail = () => {
         <span className="small text-primary fw-bold">{product.nombre_producto}</span>
       </nav>
 
-      <Row className="g-4">
+      <Row className={`g-4 ${!tieneStock ? 'opacity-75' : ''}`}>
         <Col lg={6}>
           <Card className="border-0 shadow-sm p-4 h-100 d-flex align-items-center justify-content-center bg-white">
             <Card.Img 
@@ -100,18 +96,21 @@ const ProductDetail = () => {
               </ListGroup.Item>
               <ListGroup.Item className="d-flex justify-content-between">
                 <span className="text-muted">Disponibilidad</span>
-                <span className="fw-bold text-primary">En Stock</span>
+                <span className={`fw-bold ${tieneStock ? 'text-success' : 'text-danger'}`}>
+                  {tieneStock ? `En Stock (${product.stock})` : 'Agotado'}
+                </span>
               </ListGroup.Item>
             </ListGroup>
 
             <div className="d-grid gap-3 mt-5">
               <Button 
-                variant="dark" 
+                variant={tieneStock ? "dark" : "secondary"} 
                 size="lg" 
                 className="fw-bold py-3 shadow"
                 onClick={() => addToCart(product)}
+                disabled={!tieneStock}
               >
-                Añadir al Carrito 🛒
+                {tieneStock ? "Añadir al Carrito " : "Agotado Temporalmente "}
               </Button>
               <Link to="/" className="btn btn-outline-secondary btn-lg fw-bold">
                 Seguir comprando

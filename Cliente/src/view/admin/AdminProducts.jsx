@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { Table, Button } from 'react-bootstrap';
+import { Table, Button, Badge } from 'react-bootstrap';
 import clienteAxios from '../../api/api';
 import '../admin/AdminHome.css';
 import AdminProductModals from './AdminProductModals';
@@ -8,7 +8,6 @@ import AdminProductModals from './AdminProductModals';
 export default function AdminProducts() {
   const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  // Nuevo estado para almacenar el producto que el usuario quiere editar
   const [productToEdit, setProductToEdit] = useState(null);
 
   // Para traer los productos desde Neon
@@ -44,24 +43,6 @@ export default function AdminProducts() {
     setShowModal(false);
   };
 
-  // Borra en la base de datos y actualiza la pantalla al instante
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este producto del inventario?")) {
-      return;
-    }
-
-    try {
-      const response = await clienteAxios.delete(`/productos/${id}`);
-      if (response.status === 200) {
-        alert("Producto eliminado con éxito.");
-        setProductos(productos.filter((p) => p.id_producto !== id));
-      }
-    } catch (error) {
-      console.error("Error al eliminar producto:", error);
-      alert("Error al eliminar el producto. Intente nuevamente.");
-    }
-  };
-  
   return (
     <div className="admin-page">
       <AdminSidebar />
@@ -70,13 +51,11 @@ export default function AdminProducts() {
         <p className="admin-subtitle">Listado completo de productos en el inventario.</p>
 
         <div className="admin-table-actions">
-          {/* Al hacer clic, abrimos en modo creación */}
           <Button className="admin-btn-add" onClick={handleOpenAddModal}>
             + Nuevo producto
           </Button>
         </div>
 
-        {/* Pasamos show, handleClose, refresh y opcionalmente el producto a editar */}
         {showModal && (
           <AdminProductModals 
             show={showModal} 
@@ -94,55 +73,67 @@ export default function AdminProducts() {
               <th>Categoría</th>
               <th>Marca</th>
               <th>Precio</th>
+              <th>Disponibilidad</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center text-muted py-3">
+                <td colSpan="7" className="text-center text-muted py-3">
                   No hay productos en el inventario o cargando...
                 </td>
               </tr>
             ) : (
-              productos.map((p) => (
-                <tr key={p.id_producto}>
-                  <td>{p.id_producto}</td>
-                  <td>{p.nombre_producto}</td>
-                  <td>{p.nombre_categoria || 'Sin categoría'}</td>
-                  <td>{p.marca}</td>
-                  
-                  {/*  CELDA CORREGIDA CON FORMATO CLP EXPLICITO Y SIN DECIMALES */}
-                  <td>
-                    {p.precio 
-                      ? Number(p.precio).toLocaleString('es-CL', {
-                          style: 'currency',
-                          currency: 'CLP',
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        }) 
-                      : '$0'}
-                  </td>
+              productos.map((p) => {
+                const stockNumerico = Number(p.stock) || 0;
+                return (
+                  <tr key={p.id_producto}>
+                    <td>{p.id_producto}</td>
+                    <td>{p.nombre_producto}</td>
+                    <td>{p.nombre_categoria || 'Sin categoría'}</td>
+                    <td>{p.marca}</td>
+                    
+                    <td>
+                      {p.precio 
+                        ? Number(p.precio).toLocaleString('es-CL', {
+                            style: 'currency',
+                            currency: 'CLP',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }) 
+                        : '$0'}
+                    </td>
 
-                  <td className="admin-table-btns">
-                    {/* Al hacer clic en Editar, entrego el objeto 'p' completo */}
-                    <Button 
-                      size="sm" 
-                      className="admin-btn-edit"
-                      onClick={() => handleOpenEditModal(p)}
-                    >
-                      Editar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="admin-btn-delete" 
-                      onClick={() => handleDeleteProduct(p.id_producto)}
-                    >
-                      Eliminar
-                    </Button>
-                  </td>
-                </tr>
-              ))
+                    {/* COLUMNA DE DISPONIBILIDAD MEDIANTE BADGES DINÁMICOS */}
+                    <td>
+                      <span className={`admin-badge ${stockNumerico > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} px-2 py-1 rounded small fw-bold`}>
+                        {stockNumerico > 0 ? `En Stock (${stockNumerico})` : 'Agotado'}
+                      </span>
+                    </td>
+
+                    <td className="admin-table-btns">
+                      {/* BOTÓN PRINCIPAL: AHORA LA EDICIÓN ES LA ENCARGADA DE SUBIR/BAJAR EL STOCK */}
+                      <Button 
+                        size="sm" 
+                        className="admin-btn-edit me-2"
+                        onClick={() => handleOpenEditModal(p)}
+                      >
+                        Editar 
+                      </Button>
+                      
+                      {/* REEMPLAZO: El botón Activar/Desactivar ahora es un Badge puramente informativo y estético */}
+                      <Badge 
+                        bg={stockNumerico > 0 ? "success" : "danger"}
+                        className="py-2 px-3 small d-inline-block text-center shadow-sm"
+                        style={{ minWidth: '110px', fontSize: '0.78rem' }}
+                      >
+                        {stockNumerico > 0 ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </Table>

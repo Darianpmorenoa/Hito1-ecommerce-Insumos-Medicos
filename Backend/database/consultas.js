@@ -41,7 +41,6 @@ const obtenerProductoPorId = async (id) => {
 };
 
 const generarBoleta = async (id_usuario, productos, total, metodo_pago = 'tarjeta') => {
-
     // 1. Crear boleta
     const consultaBoleta = 
     ` INSERT INTO boletas (id_usuario, fecha, total, estado, metodo_pago) VALUES ($1, NOW(), $2, 'completado', $3) RETURNING * `;
@@ -53,9 +52,7 @@ const generarBoleta = async (id_usuario, productos, total, metodo_pago = 'tarjet
 
     const nuevaBoleta = rows[0];
 
-
     for (const producto of productos) {
-
         const consultaDetalle = `INSERT INTO detalle_boleta (cod_boleta, id_producto, cantidad, precio_unitario) VALUES ($1, $2, $3, $4) `;
 
         await pool.query(
@@ -67,7 +64,6 @@ const generarBoleta = async (id_usuario, productos, total, metodo_pago = 'tarjet
                 producto.precio
             ]
         );
-
        
         await pool.query(`UPDATE productos SET stock = stock - $1 WHERE id_producto = $2 `,
             [
@@ -98,6 +94,18 @@ const obtenerTodasLasBoletas = async () => {
     return rows;
 };
 
+const actualizarEstadoBoleta = async (cod_boleta, estado) => {
+    const consulta = "UPDATE boletas SET estado = $1 WHERE cod_boleta = $2 RETURNING *;";
+    const valores = [estado, cod_boleta];
+    const { rows } = await pool.query(consulta, valores);
+    return rows[0];
+};
+const actualizarStockProducto = async (id_producto, nuevoStock) => {
+    const consulta = "UPDATE productos SET stock = $1 WHERE id_producto = $2 RETURNING *;";
+    const { rows } = await pool.query(consulta, [nuevoStock, id_producto]);
+    return rows[0];
+};
+
 module.exports = {
     registrarUsuario,
     obtenerUsuarioPorEmail,
@@ -107,5 +115,7 @@ module.exports = {
     obtenerProductoPorId,
     generarBoleta,
     obtenerBoletasPorUsuario,
-    obtenerTodasLasBoletas
+    obtenerTodasLasBoletas,
+    actualizarEstadoBoleta,
+    actualizarStockProducto
 };

@@ -5,31 +5,23 @@ import ProductCard from '../components/ProductCard'
 import clienteAxios from '../api/api';
 import { Link } from "react-router-dom";
 
-
 function Home() {
-
   const [productos, setProductos] = useState([]);
 
   useEffect(() => {
-
     const obtenerProductos = async () => {
-
       try {
         const response = await clienteAxios.get('/productos');
         setProductos(response.data);
-
       } catch (error) {
         console.error(error);
-
       }
     };
 
     obtenerProductos();
-
   }, []);
 
-
-const productosDestacados = productos.slice(0, 4);
+  const productosDestacados = productos.slice(0, 4);
 
   return (
     <main>
@@ -47,6 +39,7 @@ const productosDestacados = productos.slice(0, 4);
                   imagen={p.imagen}
                   precio={p.precio}
                   descripcion={p.descripcion}
+                  stock={p.stock}
                 />
               </Col>
             ))}
@@ -59,7 +52,6 @@ const productosDestacados = productos.slice(0, 4);
               </button>
             </Link>
           </div>
-
         </Container>
       </section>
     </main>
@@ -67,4 +59,3 @@ const productosDestacados = productos.slice(0, 4);
 }
 
 export default Home;
-

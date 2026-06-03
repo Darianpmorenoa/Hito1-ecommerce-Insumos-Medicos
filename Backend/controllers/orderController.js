@@ -5,14 +5,12 @@ const crearBoleta = async (req, res) => {
     try {
         const { productos, total } = req.body;
         
-        // Validamos que req.user exista gracias al middleware auth.js
         if (!req.user) {
             return res.status(401).json({ 
                 error: "No autorizado. No se encontraron datos de usuario en el token." 
             });
         }
 
-        // Rescatamos cualquier variante válida de ID que traiga el token decodificado
         const id_usuario = req.user.id_usuario || req.user.id || req.user.user_id; 
 
         if (!id_usuario) {
@@ -21,7 +19,6 @@ const crearBoleta = async (req, res) => {
             });
         }
 
-        // Enviamos el id_usuario limpio directamente a tu función SQL de Neon
         const nuevaBoleta = await consultas.generarBoleta(id_usuario, productos, total);
         
         res.status(201).json({
@@ -63,4 +60,31 @@ const obtenerTodasLasBoletas = async (req, res) => {
     }
 };
 
-module.exports = { crearBoleta, obtenerMisBoletas, obtenerTodasLasBoletas };
+// 4. NUEVA FUNCIÓN: Actualizar el estado de una boleta (Para el select del Admin)
+const actualizarEstadoBoleta = async (req, res) => {
+    try {
+        const { cod_boleta } = req.params;
+        const { estado } = req.body;
+
+        if (!estado) {
+            return res.status(400).json({ error: "El nuevo estado es requerido." });
+        }
+
+        // Llamamos a la consulta SQL que crearemos en el paso 2
+        await consultas.actualizarEstadoBoleta(cod_boleta, estado);
+
+        res.status(200).json({ 
+            ok: true, 
+            message: `Estado de la boleta #${cod_boleta} actualizado a '${estado}' correctamente.` 
+        });
+    } catch (error) {
+        console.error("Error al actualizar estado de la boleta:", error.message);
+        res.status(500).json({ error: "Error interno al actualizar el estado." });
+    }
+};
+
+module.exports = { 
+    crearBoleta, 
+    obtenerMisBoletas, 
+    obtenerTodasLasBoletas, 
+    actualizarEstadoBoleta}

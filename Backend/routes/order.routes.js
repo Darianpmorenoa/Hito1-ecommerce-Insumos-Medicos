@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { crearBoleta, obtenerMisBoletas, obtenerTodasLasBoletas } = require('../controllers/orderController');
+// 1. Agregamos 'actualizarEstadoBoleta'
+const { crearBoleta, obtenerMisBoletas, obtenerTodasLasBoletas, actualizarEstadoBoleta } = require('../controllers/orderController');
 const { validateToken, verifyAdmin } = require('../middlewares/auth');
 
 // Rutas para órdenes (boletas)
@@ -11,5 +12,7 @@ router.get('/', validateToken, obtenerMisBoletas);
 
 // Obtener todas las boletas (Solo para Admin)
 router.get('/todas', validateToken, verifyAdmin, obtenerTodasLasBoletas);
+
+router.put('/actualizar-estado/:cod_boleta', validateToken, verifyAdmin, actualizarEstadoBoleta);
 
 module.exports = router;
