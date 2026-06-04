@@ -14,5 +14,7 @@ router.get('/', validateToken, verifyAdmin, userController.obtenerUsuarios);
 
 // 4. Login de usuarios (Público)
 router.post('/login', userController.loginUsuario);
+// 5. Actualizar datos de despacho del usuario logueado (Privado)
+router.put('/perfil', validateToken, userController.actualizarPerfil);
 
 module.exports = router;

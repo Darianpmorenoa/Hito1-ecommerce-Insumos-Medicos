@@ -105,7 +105,18 @@ const actualizarStockProducto = async (id_producto, nuevoStock) => {
     const { rows } = await pool.query(consulta, [nuevoStock, id_producto]);
     return rows[0];
 };
-
+const actualizarPerfilUsuario = async (id_usuario, datos) => {
+    const { rut, telefono, region, comuna } = datos;
+    const query = `
+        UPDATE usuarios 
+        SET rut = $1, telefono = $2, region = $3, comuna = $4 
+        WHERE id_usuario = $5
+        RETURNING id_usuario, rut, nombre, apellido, email, telefono, region, comuna;
+    `;
+    const values = [rut, telefono, region, comuna, id_usuario];
+    const { rows } = await pool.query(query, values); 
+    return rows[0];
+};
 module.exports = {
     registrarUsuario,
     obtenerUsuarioPorEmail,
@@ -117,5 +128,6 @@ module.exports = {
     obtenerBoletasPorUsuario,
     obtenerTodasLasBoletas,
     actualizarEstadoBoleta,
-    actualizarStockProducto
+    actualizarStockProducto,
+    actualizarPerfilUsuario
 };

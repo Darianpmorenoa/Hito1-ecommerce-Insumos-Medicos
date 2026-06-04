@@ -101,9 +101,34 @@ const obtenerPerfil = async (req, res) => {
     }
 };
 
+//  5. NUEVO: Actualizar perfil/datos de despacho del usuario
+const actualizarPerfil = async (req, res) => {
+    try {
+        // Extraemos el id_usuario desde el token decodificado (req.user)
+        const id_usuario = req.user.id || req.user.id_usuario;
+        const { rut, telefono, region, comuna } = req.body;
+
+        // Llamamos a la función de la base de datos pasándole los parámetros estructurados
+        const usuarioActualizado = await consultas.actualizarPerfilUsuario(id_usuario, { rut, telefono, region, comuna });
+
+        if (!usuarioActualizado) {
+            return res.status(404).json({ ok: false, error: "Usuario no encontrado en el sistema." });
+        }
+        res.status(200).json({
+            ok: true,
+            message: "Perfil actualizado con éxito 🎉",
+            usuario: usuarioActualizado
+        });
+    } catch (error) {
+        console.error("❌ ERROR CRÍTICO EN ACTUALIZAR PERFIL:", error);
+        res.status(500).json({ ok: false, error: "Error interno en el servidor al actualizar los datos de entrega." });
+    }
+};
+
 module.exports = { 
     registrarUsuario, 
     loginUsuario,  
     obtenerUsuarios, 
-    obtenerPerfil 
+    obtenerPerfil,
+    actualizarPerfil
 };
