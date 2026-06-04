@@ -44,7 +44,6 @@ export default function AdminUsers() {
               <th>Email</th>
               <th>Teléfono</th>
               <th>Rol</th>
-              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -65,10 +64,6 @@ export default function AdminUsers() {
                     <span className={`admin-badge admin-badge--${u.rol}`}>
                       {u.rol}
                     </span>
-                  </td>
-                  <td className="admin-table-btns">
-                    <Button size="sm" className="admin-btn-edit">Editar</Button>
-                    <Button size="sm" className="admin-btn-delete">Eliminar</Button>
                   </td>
                 </tr>
               ))
