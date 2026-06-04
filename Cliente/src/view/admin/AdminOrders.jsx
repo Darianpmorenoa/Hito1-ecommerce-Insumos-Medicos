@@ -83,7 +83,7 @@ export default function AdminOrders() {
                   <td>B-{String(o.cod_boleta).padStart(4, '0')}</td>
                   <td>{o.nombre} {o.apellido}</td>
                   <td>${Number(o.total).toLocaleString('es-CL')}</td>
-                  <td className="text-capitalize">{o.metodo_pago || o.forma_pago || 'Tarjeta'}</td>
+                  <td className="text-capitalize">{o.metodo_pago || o.forma_pago || 'No especificado'}</td>
                   
                   {/* CONTROL DE ESTADO REAL ASOCIADO (SELECTOR INTERACTIVO) */}
                   <td>

@@ -18,7 +18,7 @@ const registrarUsuario = async (req, res) => {
     }
 };
 
-// 2. Función para inicio de sesión (Login) - MODIFICADO CON ESPECIFICACIÓN
+// 2. Función para inicio de sesión (Login)
 const loginUsuario = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -101,7 +101,7 @@ const obtenerPerfil = async (req, res) => {
     }
 };
 
-//  5. NUEVO: Actualizar perfil/datos de despacho del usuario
+//  5. Actualizar perfil/datos de despacho del usuario
 const actualizarPerfil = async (req, res) => {
     try {
         // Extraemos el id_usuario desde el token decodificado (req.user)

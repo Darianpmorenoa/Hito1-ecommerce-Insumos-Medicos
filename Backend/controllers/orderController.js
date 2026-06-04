@@ -3,7 +3,9 @@ const consultas = require('../database/consultas');
 // 1. Generar una nueva Boleta (Antes crearOrden)
 const crearBoleta = async (req, res) => {
     try {
-        const { productos, total, metodo_pago } = req.body;
+        // Recibimos metodo_pago o metodoPago según cómo venga del frontend
+        const { productos, total, metodo_pago, metodoPago } = req.body;
+        const pagoFinal = metodo_pago || metodoPago || 'tarjeta';
         
         if (!req.user) {
             return res.status(401).json({ 
@@ -19,7 +21,12 @@ const crearBoleta = async (req, res) => {
             });
         }
 
-        const nuevaBoleta = await consultas.generarBoleta(id_usuario, productos, total, metodo_pago);
+        const nuevaBoleta = await consultas.generarBoleta(
+            id_usuario, 
+            productos, 
+            total, 
+            pagoFinal
+        );
         
         res.status(201).json({
             ok: true,
@@ -60,7 +67,7 @@ const obtenerTodasLasBoletas = async (req, res) => {
     }
 };
 
-// 4. NUEVA FUNCIÓN: Actualizar el estado de una boleta (Para el select del Admin)
+// 4.Actualizar el estado de una boleta (Para el select del Admin)
 const actualizarEstadoBoleta = async (req, res) => {
     try {
         const { cod_boleta } = req.params;
@@ -70,7 +77,6 @@ const actualizarEstadoBoleta = async (req, res) => {
             return res.status(400).json({ error: "El nuevo estado es requerido." });
         }
 
-        // Llamamos a la consulta SQL que crearemos en el paso 2
         await consultas.actualizarEstadoBoleta(cod_boleta, estado);
 
         res.status(200).json({ 
@@ -87,4 +93,5 @@ module.exports = {
     crearBoleta, 
     obtenerMisBoletas, 
     obtenerTodasLasBoletas, 
-    actualizarEstadoBoleta}
+    actualizarEstadoBoleta
+};
