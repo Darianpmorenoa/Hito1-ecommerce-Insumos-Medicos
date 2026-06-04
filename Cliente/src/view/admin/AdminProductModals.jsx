@@ -152,7 +152,7 @@ export default function AdminProductModals({ show, handleClose, refreshProductos
             />
           </Form.Group>
 
-          {/* 5. CANTIDAD EN STOCK (NUEVO CAMPO INYECTADO) */}
+          {/* 5. CANTIDAD EN STOCK */}
           <Form.Group className="mb-3">
             <Form.Label className="fw-bold text-primary">Cantidad en Stock (Inventario)</Form.Label>
             <Form.Control 
