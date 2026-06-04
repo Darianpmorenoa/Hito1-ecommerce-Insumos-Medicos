@@ -32,10 +32,6 @@ export default function AdminUsers() {
 
         {error && <p style={{ color: 'red' }}>{error}</p>}
 
-        <div className="admin-table-actions">
-          <Button className="admin-btn-add">+ Nuevo usuario</Button>
-        </div>
-
         <Table hover responsive className="bg-white rounded shadow-sm">
           <thead style={{ backgroundColor: 'var(--color-dark)', color: 'white' }}>
             <tr>
